@@ -37,17 +37,17 @@ DOMAIN = os.environ.get("DOMAIN", "http://localhost:5000")  # e.g. https://salte
 # ---------------------------------------------------------------------------
 PRODUCTS = {
     1: {
-        "id": 1, "name": "T-Shirt", "price_cents": 2700, "image": "t-shirt.jpg",
+        "id": 1, "name": "T-Shirt", "price_cents": 2000, "image": "t-shirt.jpg",
         "description": "Premium quality 100% cotton t-shirt. Breathable fabric, "
                         "perfect for casual wear, and tailored for a modern fit.",
     },
     2: {
-        "id": 2, "name": "Coffee Mug", "price_cents": 1700, "image": "mug.jpg",
+        "id": 2, "name": "Coffee Mug", "price_cents": 1000, "image": "mug.jpg",
         "description": "High-quality ceramic coffee mug. Microwave and dishwasher safe, "
                         "featuring an ergonomic handle to enjoy your morning brew.",
     },
     3: {
-        "id": 3, "name": "Truth, Prayers and Confirmation", "price_cents": 2700, "image": "book.jpg",
+        "id": 3, "name": "Truth, Prayers and Confirmation", "price_cents": 2000, "image": "book.jpg",
         "extra_images": ["book1.jpg"],
         "description": "A5 sized ruled devotional journal with premium fountain-pen friendly "
                         "paper. Set aside space each day for prayer, reflection, and recording "
@@ -55,11 +55,28 @@ PRODUCTS = {
                         "with God.",
     },
     4: {
-        "id": 4, "name": "Cap", "price_cents": 3200, "image": "cap.jpg",
+        "id": 4, "name": "Cap", "price_cents": 2500, "image": "cap.jpg",
         "description": "Adjustable cotton-blend cap with a curved brim and breathable "
                         "eyelets. A comfortable, everyday fit for sunny days out.",
     },
 }
+
+# ---------------------------------------------------------------------------
+# Tax / handling — applied on top of the item subtotal at checkout.
+# ---------------------------------------------------------------------------
+TAX_RATE = 0.09              # 9% of the item subtotal
+HANDLING_FEE_CENTS = 500     # flat $5.00 handling fee
+
+
+def compute_order_totals(items):
+    """Given cart items, return (subtotal_cents, tax_cents, handling_cents, total_cents)."""
+    subtotal_cents = sum(item["line_total_cents"] for item in items)
+    if not items:
+        return 0, 0, 0, 0
+    tax_cents = round(subtotal_cents * TAX_RATE)
+    handling_cents = HANDLING_FEE_CENTS
+    total_cents = subtotal_cents + tax_cents + handling_cents
+    return subtotal_cents, tax_cents, handling_cents, total_cents
 
 
 # ---------------------------------------------------------------------------
@@ -198,8 +215,16 @@ def product_details(product_id):
 @app.route("/cart")
 def cart():
     items = get_cart_items()
-    total_cents = sum(item["line_total_cents"] for item in items)
-    return render_template("cart.html", items=items, total_cents=total_cents)
+    subtotal_cents, tax_cents, handling_cents, total_cents = compute_order_totals(items)
+    return render_template(
+        "cart.html",
+        items=items,
+        subtotal_cents=subtotal_cents,
+        tax_cents=tax_cents,
+        handling_cents=handling_cents,
+        total_cents=total_cents,
+        tax_rate_pct=int(round(TAX_RATE * 100)),
+    )
 
 
 @app.route("/cart/add/<int:product_id>", methods=["POST"])
@@ -250,8 +275,16 @@ def checkout():
     items = get_cart_items()
     if not items:
         return redirect(url_for("cart"))
-    total_cents = sum(item["line_total_cents"] for item in items)
-    return render_template("checkout.html", items=items, total_cents=total_cents)
+    subtotal_cents, tax_cents, handling_cents, total_cents = compute_order_totals(items)
+    return render_template(
+        "checkout.html",
+        items=items,
+        subtotal_cents=subtotal_cents,
+        tax_cents=tax_cents,
+        handling_cents=handling_cents,
+        total_cents=total_cents,
+        tax_rate_pct=int(round(TAX_RATE * 100)),
+    )
 
 
 REQUIRED_SHIPPING_FIELDS = (
@@ -284,6 +317,26 @@ def create_checkout_session():
         },
         "quantity": item["quantity"],
     } for item in items]
+
+    _, tax_cents, handling_cents, _ = compute_order_totals(items)
+    if tax_cents:
+        line_items.append({
+            "price_data": {
+                "currency": "usd",
+                "product_data": {"name": f"Tax ({int(round(TAX_RATE * 100))}%)"},
+                "unit_amount": tax_cents,
+            },
+            "quantity": 1,
+        })
+    if handling_cents:
+        line_items.append({
+            "price_data": {
+                "currency": "usd",
+                "product_data": {"name": "Handling fee"},
+                "unit_amount": handling_cents,
+            },
+            "quantity": 1,
+        })
 
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -377,7 +430,8 @@ def stripe_webhook():
                 "name": li["description"],
                 "price_cents": (li["amount_total"] // li["quantity"]) if li["quantity"] else 0,
                 "quantity": li["quantity"],
-            } for li in stripe_line_items["data"]]
+            } for li in stripe_line_items["data"]
+              if not (li["description"] or "").startswith(("Tax (", "Handling fee"))]
             _save_order_if_new(
                 session_id,
                 checkout_session.get("customer_details", {}).get("email"),

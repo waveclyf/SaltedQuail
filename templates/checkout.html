@@ -110,14 +110,22 @@
                 <h2>Order summary</h2>
                 <div class="summary-line">
                     <span>Subtotal</span>
-                    <span>{{ total_cents|usd }}</span>
+                    <span>{{ subtotal_cents|usd }}</span>
+                </div>
+                <div class="summary-line">
+                    <span>Tax ({{ tax_rate_pct }}%)</span>
+                    <span>{{ tax_cents|usd }}</span>
+                </div>
+                <div class="summary-line">
+                    <span>Handling fee</span>
+                    <span>{{ handling_cents|usd }}</span>
                 </div>
                 <div class="summary-line summary-total">
                     <span>Total</span>
                     <span>{{ total_cents|usd }}</span>
                 </div>
                 <p style="margin-top:8px; font-size:0.82rem; color:#777; line-height:1.4;">
-                    Prices shown include shipping, handling, and tax — no surprises at checkout.
+                    {{ tax_rate_pct }}% tax + {{ handling_cents|usd }} for handling included above.
                 </p>
 
                 <button type="submit" class="cta checkout-btn">

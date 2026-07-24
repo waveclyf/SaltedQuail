@@ -78,13 +78,21 @@
                 <h2>Order summary</h2>
                 <div class="summary-line">
                     <span>Subtotal</span>
-                    <span>{{ total_cents|usd }}</span>
+                    <span>{{ subtotal_cents|usd }}</span>
+                </div>
+                <div class="summary-line">
+                    <span>Tax ({{ tax_rate_pct }}%)</span>
+                    <span>{{ tax_cents|usd }}</span>
+                </div>
+                <div class="summary-line">
+                    <span>Handling fee</span>
+                    <span>{{ handling_cents|usd }}</span>
                 </div>
                 <div class="summary-line summary-total">
                     <span>Total</span>
                     <span>{{ total_cents|usd }}</span>
                 </div>
-                <p class="price-note">Prices shown include shipping, handling, and tax — no surprises at checkout.</p>
+                <p class="price-note">{{ tax_rate_pct }}% tax + {{ handling_cents|usd }} for handling, added at checkout.</p>
                 <a class="cta checkout-btn" href="{{ url_for('checkout') }}">Proceed to checkout <span aria-hidden="true">&rarr;</span></a>
                 <form action="{{ url_for('cart_clear') }}" method="POST">
                     <button type="submit" class="clear-btn">Clear cart</button>
