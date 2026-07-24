@@ -60,6 +60,7 @@
                     </div>
 
                     <form class="cart-row-qty" action="{{ url_for('cart_update', product_id=item.id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="qty-btn" name="quantity" value="{{ item.quantity - 1 }}" aria-label="Decrease quantity">&minus;</button>
                         <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="20" inputmode="numeric" aria-label="Quantity for {{ item.name }}">
                         <button type="submit" class="qty-btn" name="quantity" value="{{ item.quantity + 1 }}" aria-label="Increase quantity">&plus;</button>
@@ -68,6 +69,7 @@
                     <p class="cart-row-total">{{ item.line_total_cents|usd }}</p>
 
                     <form action="{{ url_for('cart_remove', product_id=item.id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="remove-btn" aria-label="Remove {{ item.name }} from cart">Remove</button>
                     </form>
                 </div>
@@ -95,6 +97,7 @@
                 <p class="price-note">{{ tax_rate_pct }}% tax + {{ handling_cents|usd }} for handling, added at checkout.</p>
                 <a class="cta checkout-btn" href="{{ url_for('checkout') }}">Proceed to checkout <span aria-hidden="true">&rarr;</span></a>
                 <form action="{{ url_for('cart_clear') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="clear-btn">Clear cart</button>
                 </form>
             </aside>

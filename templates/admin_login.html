@@ -15,6 +15,7 @@
         {% endif %}
 
         <form action="{{ url_for('admin_login') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="text" name="username" placeholder="Username" style="width: 100%; margin-bottom: 10px;" required>
             <input type="password" name="password" placeholder="Password" style="width: 100%; margin-bottom: 20px;" required>
             <button type="submit" style="width: 100%;">Login</button>

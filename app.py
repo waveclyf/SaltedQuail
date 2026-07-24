@@ -5,6 +5,9 @@ from functools import wraps
 from flask import Flask, render_template, abort, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_wtf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from werkzeug.security import generate_password_hash, check_password_hash
 import stripe
 from dotenv import load_dotenv
@@ -12,7 +15,31 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-change-this-in-production")
+
+# ---------------------------------------------------------------------------
+# SECRET_KEY — this signs the session cookie, which is what admin auth relies
+# on (session["is_admin"]). There is NO safe hardcoded fallback for this: if
+# it's predictable, anyone can forge an admin session cookie and skip the
+# login screen entirely. In production you MUST set SECRET_KEY as an env var.
+# For local dev only, we fall back to a random key generated per process
+# (sessions just won't survive a restart, which is fine locally).
+# ---------------------------------------------------------------------------
+_secret_key = os.environ.get("SECRET_KEY")
+_is_production = os.environ.get("FLASK_ENV") == "production" or os.environ.get("VERCEL") == "1"
+if not _secret_key:
+    if _is_production:
+        raise RuntimeError(
+            "SECRET_KEY environment variable is not set. Refusing to start in "
+            "production with an insecure/default key — set SECRET_KEY in your "
+            "Vercel project's environment variables."
+        )
+    import secrets as _secrets
+    _secret_key = _secrets.token_hex(32)
+    app.logger.warning(
+        "SECRET_KEY not set — using a random per-process key for local dev. "
+        "Set SECRET_KEY explicitly before deploying."
+    )
+app.secret_key = _secret_key
 
 # Render (and Heroku) hand out DATABASE_URL as postgres://, but SQLAlchemy 1.4+/2.x
 # wants postgresql://. Falls back to a local SQLite file for local dev if unset.
@@ -23,8 +50,30 @@ if database_url.startswith("postgres://"):
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+# ---------------------------------------------------------------------------
+# Session cookie hardening
+# ---------------------------------------------------------------------------
+app.config.update(
+    SESSION_COOKIE_SECURE=_is_production,   # only send cookie over HTTPS in prod
+    SESSION_COOKIE_HTTPONLY=True,           # JS can't read the cookie
+    SESSION_COOKIE_SAMESITE="Lax",
+    PERMANENT_SESSION_LIFETIME=1800,        # 30 min idle timeout
+)
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+csrf = CSRFProtect(app)
+limiter = Limiter(get_remote_address, app=app, default_limits=[])
+
+
+@app.after_request
+def set_security_headers(response):
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    if _is_production:
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
 
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
@@ -157,6 +206,24 @@ def get_cart_count():
     return sum(get_cart().values())
 
 
+MAX_QTY_PER_ITEM = 20
+
+
+def parse_quantity(raw, default=1):
+    """Safely parse a quantity from form data, clamped to a sane range.
+
+    request.form values are attacker-controlled — a direct POST (bypassing
+    the HTML <input min/max>) could send a non-numeric or huge value, which
+    used to raise an unhandled ValueError (500 error) or set an absurd
+    quantity. This clamps to [1, MAX_QTY_PER_ITEM] and never raises.
+    """
+    try:
+        qty = int(raw)
+    except (TypeError, ValueError):
+        return default
+    return max(1, min(qty, MAX_QTY_PER_ITEM))
+
+
 @app.context_processor
 def inject_cart_count():
     return {"cart_count": get_cart_count()}
@@ -233,8 +300,9 @@ def cart_add(product_id):
         abort(404)
     cart = get_cart()
     pid_str = str(product_id)
-    qty = int(request.form.get("quantity", 1))
-    cart[pid_str] = cart.get(pid_str, 0) + max(qty, 1)
+    qty = parse_quantity(request.form.get("quantity"), default=1)
+    new_qty = cart.get(pid_str, 0) + qty
+    cart[pid_str] = min(new_qty, MAX_QTY_PER_ITEM)
     session.modified = True
     return redirect(url_for("cart"))
 
@@ -243,11 +311,15 @@ def cart_add(product_id):
 def cart_update(product_id):
     cart = get_cart()
     pid_str = str(product_id)
-    qty = int(request.form.get("quantity", 1))
-    if qty <= 0:
+    raw_qty = request.form.get("quantity", "")
+    try:
+        requested_qty = int(raw_qty)
+    except (TypeError, ValueError):
+        requested_qty = 1
+    if requested_qty <= 0:
         cart.pop(pid_str, None)
     else:
-        cart[pid_str] = qty
+        cart[pid_str] = min(requested_qty, MAX_QTY_PER_ITEM)
     session.modified = True
     return redirect(url_for("cart"))
 
@@ -294,6 +366,7 @@ REQUIRED_SHIPPING_FIELDS = (
 
 
 @app.route("/create-checkout-session", methods=["POST"])
+@limiter.limit("10 per minute")
 def create_checkout_session():
     items = get_cart_items()
     if not items:
@@ -394,11 +467,23 @@ def success():
         try:
             checkout_session = stripe.checkout.Session.retrieve(session_id)
             if checkout_session.payment_status == "paid":
+                # Use the line items Stripe actually charged, not the live
+                # session cart — the customer may have edited/cleared their
+                # cart between paying and landing back on this page, which
+                # would otherwise save the wrong products against this order.
+                stripe_line_items = stripe.checkout.Session.list_line_items(session_id)
+                line_items = [{
+                    "id": 0,
+                    "name": li["description"],
+                    "price_cents": (li["amount_total"] // li["quantity"]) if li["quantity"] else 0,
+                    "quantity": li["quantity"],
+                } for li in stripe_line_items["data"]
+                  if not (li["description"] or "").startswith(("Tax (", "Handling fee"))]
                 _save_order_if_new(
                     session_id,
                     checkout_session.customer_details.email if checkout_session.customer_details else None,
                     checkout_session.amount_total,
-                    get_cart_items(),
+                    line_items,
                     dict(checkout_session.metadata) if checkout_session.metadata else {},
                 )
         except Exception as e:
@@ -410,6 +495,7 @@ def success():
 
 
 @app.route("/stripe-webhook", methods=["POST"])
+@csrf.exempt
 def stripe_webhook():
     payload = request.data
     sig_header = request.headers.get("Stripe-Signature")
@@ -447,6 +533,7 @@ def stripe_webhook():
 # Admin
 # ---------------------------------------------------------------------------
 @app.route("/admin/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute", methods=["POST"])
 def admin_login():
     error = None
     if request.method == "POST":

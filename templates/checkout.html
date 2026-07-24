@@ -44,6 +44,7 @@
         </div>
 
         <form action="{{ url_for('create_checkout_session') }}" method="POST" id="checkoutForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="cart-layout">
             <div class="cart-items">
                 {% for item in items %}
