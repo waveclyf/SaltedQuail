@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Salted Quail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a class="logo" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Salted Quail logo">
+                <span class="logo-text">Salted Quail</span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('home') }}#products-section">Products</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li>
+                    <a class="cart-link" href="{{ url_for('cart') }}">
+                        <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 8H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <circle cx="9" cy="20" r="1.4" fill="currentColor"></circle>
+                            <circle cx="17" cy="20" r="1.4" fill="currentColor"></circle>
+                        </svg>
+                        Cart
+                        {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+                    </a>
+                </li>
+                <li><a class="login-btn" href="{{ url_for('admin_login') }}">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="legal-page">
+        <div class="legal-inner">
+            <h1>Contact Us</h1>
+            <p>We're happy to help with questions about your order, our products, or anything else.</p>
+
+            <div class="contact-card">
+                <h2>Salted Quail</h2>
+                <p class="contact-line"><strong>Legal business name:</strong> Salted Quail LLC (DBA Salted Quail)</p>
+                <p class="contact-line"><strong>Mailing address:</strong><br>10936 Whippletree Lane<br>Spring Valley, CA 91978<br>United States</p>
+                <p class="contact-line"><strong>Email:</strong> <a href="mailto:SaltedQuail@gmail.com">SaltedQuail@gmail.com</a></p>
+                <p class="contact-line"><strong>Phone:</strong> <a href="tel:+16197439675">1-619-743-9675</a></p>
+                <p class="contact-line"><strong>Hours:</strong> Tuesday&ndash;Friday, 10am&ndash;4pm. Closed Saturdays, Sundays, Mondays, and on holidays.</p>
+            </div>
+
+            <p>For order-specific questions, please include your order number (found in your confirmation email) so we can help you faster.</p>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="{{ url_for('terms') }}">Terms of Service</a>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+            <a href="{{ url_for('refund_policy') }}">Refund &amp; Cancellation Policy</a>
+            <a href="{{ url_for('contact') }}">Contact Us</a>
+        </div>
+        <p>&copy; <span id="year"></span> Salted Quail &middot; Made for people who like nice things.</p>
+    </footer>
+
+    <style>
+        .legal-page { max-width: 760px; margin: 0 auto; padding: 60px 24px 80px; }
+        .legal-page h1 { margin-bottom: 4px; }
+        .legal-page p { line-height: 1.65; margin-bottom: 12px; }
+        .legal-page a { color: inherit; text-decoration: underline; }
+        .contact-card { background: #faf9f7; border: 1px solid #eee; border-radius: 8px; padding: 24px 28px; margin: 24px 0; }
+        .contact-card h2 { margin-top: 0; font-size: 1.1rem; }
+        .contact-line { margin-bottom: 10px; }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-bottom: 10px; font-size: 0.85rem; }
+        .footer-links a { color: inherit; opacity: 0.75; text-decoration: none; }
+        .footer-links a:hover { opacity: 1; text-decoration: underline; }
+    </style>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>

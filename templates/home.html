@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salted Quail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a class="logo" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Salted Quail logo">
+                <span class="logo-text">Salted Quail</span>
+            </a>
+
+            <form class="search-box" role="search" onsubmit="return false;">
+                <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-linecap="round"></line>
+                </svg>
+                <input type="text" placeholder="Search products…" aria-label="Search products">
+            </form>
+
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="#products-section">Products</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li>
+                    <a class="cart-link" href="{{ url_for('cart') }}">
+                        <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 8H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <circle cx="9" cy="20" r="1.4" fill="currentColor"></circle>
+                            <circle cx="17" cy="20" r="1.4" fill="currentColor"></circle>
+                        </svg>
+                        Cart
+                        {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+                    </a>
+                </li>
+                <li><a class="login-btn" href="{{ url_for('admin_login') }}">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-accent" aria-hidden="true"></div>
+        <div class="hero-inner">
+            <p class="eyebrow">T-Shirts &middot; Mugs &middot; Notebooks</p>
+            <h1>Discover amazing<br>products for every day.</h1>
+            <p class="hero-sub">Quality basics for your wardrobe, your desk and your morning coffee &mdash; without the markup.</p>
+            <a class="cta" href="#products-section">Shop the collection <span aria-hidden="true">&rarr;</span></a>
+        </div>
+    </section>
+
+    <section class="featured" id="products-section">
+        <div class="section-head">
+            <h2>Featured products</h2>
+            <p>Three favourites, picked by us this week.</p>
+        </div>
+
+        <div class="product-grid">
+
+            <article class="product-card">
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/t-shirt.jpg') }}" alt="Classic T-Shirt" class="zoomable-img">
+                    <span class="price-tag"><span class="price-hole" aria-hidden="true"></span>$27.00</span>
+                </div>
+                <div class="product-info">
+                    <h3> T-Shirt</h3>
+                    <p class="product-meta">100% cotton &middot; Unisex fit</p>
+                    <a class="view-btn" href="{{ url_for('product_details', product_id=1) }}">View product <span aria-hidden="true">&rarr;</span></a>
+                </div>
+            </article>
+
+            <article class="product-card">
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/mug.jpg') }}" alt="Coffee Mug" class="zoomable-img">
+                    <span class="price-tag"><span class="price-hole" aria-hidden="true"></span>$17.00</span>
+                </div>
+                <div class="product-info">
+                    <h3>Coffee Mug</h3>
+                    <p class="product-meta">Ceramic &middot; 300 ml</p>
+                    <a class="view-btn" href="{{ url_for('product_details', product_id=2) }}">View product <span aria-hidden="true">&rarr;</span></a>
+                </div>
+            </article>
+
+            <article class="product-card">
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/book.jpg') }}" alt="Truth, Prayers and Confirmation" class="zoomable-img">
+                    <span class="price-tag"><span class="price-hole" aria-hidden="true"></span>$27.00</span>
+                </div>
+                <div class="product-info">
+                    <h3>Truth, Prayers and Confirmation</h3>
+                    <p class="product-meta">A5 &middot; Devotional journal</p>
+                    <a class="view-btn" href="{{ url_for('product_details', product_id=3) }}">View product <span aria-hidden="true">&rarr;</span></a>
+                </div>
+            </article>
+
+            <article class="product-card">
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/cap.jpg') }}" alt="Cap" class="zoomable-img">
+                    <span class="price-tag"><span class="price-hole" aria-hidden="true"></span>$32.00</span>
+                </div>
+                <div class="product-info">
+                    <h3>Cap</h3>
+                    <p class="product-meta">Cotton-blend &middot; Adjustable</p>
+                    <a class="view-btn" href="{{ url_for('product_details', product_id=4) }}">View product <span aria-hidden="true">&rarr;</span></a>
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- Lightbox overlay: shared by all .zoomable-img elements on this page -->
+    <div class="lightbox-overlay" id="lightboxOverlay">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Close full image">&times;</button>
+        <img class="lightbox-img" id="lightboxImg" src="" alt="">
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="{{ url_for('terms') }}">Terms of Service</a>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+            <a href="{{ url_for('refund_policy') }}">Refund &amp; Cancellation Policy</a>
+            <a href="{{ url_for('contact') }}">Contact Us</a>
+        </div>
+        <p>&copy; <span id="year"></span> Salted Quail &middot; Made for people who like nice things.</p>
+    </footer>
+
+    <style>
+        .zoomable-img { cursor: zoom-in; }
+
+        .footer-links { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-bottom: 10px; font-size: 0.85rem; }
+        .footer-links a { color: inherit; opacity: 0.75; text-decoration: none; }
+        .footer-links a:hover { opacity: 1; text-decoration: underline; }
+
+        .lightbox-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .lightbox-overlay.is-open {
+            display: flex;
+        }
+        .lightbox-img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 6px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 2.5rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Lightbox: click any .zoomable-img to view it full size
+        const lightboxOverlay = document.getElementById('lightboxOverlay');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxClose = document.getElementById('lightboxClose');
+
+        function openLightbox(src, alt) {
+            lightboxImg.src = src;
+            lightboxImg.alt = alt;
+            lightboxOverlay.classList.add('is-open');
+        }
+        function closeLightbox() {
+            lightboxOverlay.classList.remove('is-open');
+            lightboxImg.src = '';
+        }
+
+        document.querySelectorAll('.zoomable-img').forEach(img => {
+            img.addEventListener('click', () => openLightbox(img.src, img.alt));
+        });
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightboxOverlay.addEventListener('click', (e) => {
+            if (e.target === lightboxOverlay) closeLightbox();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+    </script>
+
+</body>
+</html>

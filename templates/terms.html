@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - Salted Quail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a class="logo" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Salted Quail logo">
+                <span class="logo-text">Salted Quail</span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('home') }}#products-section">Products</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li>
+                    <a class="cart-link" href="{{ url_for('cart') }}">
+                        <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 8H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <circle cx="9" cy="20" r="1.4" fill="currentColor"></circle>
+                            <circle cx="17" cy="20" r="1.4" fill="currentColor"></circle>
+                        </svg>
+                        Cart
+                        {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+                    </a>
+                </li>
+                <li><a class="login-btn" href="{{ url_for('admin_login') }}">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="legal-page">
+        <div class="legal-inner">
+            <h1>Terms of Service</h1>
+            <p class="legal-updated">Last updated: July 24, 2026</p>
+
+            <p>Welcome to Salted Quail ("we," "us," or "our"). These Terms of Service ("Terms") govern your access to and use of Salted Quail (the "Site") and any purchase you make through it. By using the Site or placing an order, you agree to these Terms. If you do not agree, please do not use the Site.</p>
+
+            <h2>1. Who We Are</h2>
+            <p>Salted Quail is operated by Salted Quail LLC, a business registered in California. You can reach us using the details on our <a href="{{ url_for('contact') }}">Contact Us</a> page.</p>
+
+            <h2>2. Eligibility</h2>
+            <p>You must be at least 18 years old, or the age of legal majority in your jurisdiction, to place an order on this Site. By placing an order, you confirm that you meet this requirement.</p>
+
+            <h2>3. Products and Pricing</h2>
+            <p>We make every effort to display product details, images, and pricing accurately. All prices are listed in US Dollars (USD) and include applicable taxes, shipping, and handling fees unless stated otherwise. We reserve the right to correct pricing errors, update product availability, and modify or discontinue products at any time without notice.</p>
+
+            <h2>4. Orders and Payment</h2>
+            <p>When you place an order, you are making an offer to purchase the item(s) in your cart. We reserve the right to accept or decline any order for reasons including, but not limited to, product availability, errors in pricing or product information, or suspected fraudulent activity. Payments are processed securely through Stripe. We do not store your full card details on our servers.</p>
+
+            <h2>5. Shipping</h2>
+            <p>Estimated shipping times and costs are provided at checkout. xxx (add specifics: carriers used, processing time, domestic/international shipping policy, and who is responsible for customs fees on international orders, if applicable).</p>
+
+            <h2>6. Returns, Refunds, and Cancellations</h2>
+            <p>Please see our <a href="{{ url_for('refund_policy') }}">Refund &amp; Cancellation Policy</a> for full details on returns, exchanges, and refunds.</p>
+
+            <h2>7. Account and Cart</h2>
+            <p>Your shopping cart is stored temporarily using your browser session and is not tied to a personal account. You are responsible for maintaining the confidentiality of any admin credentials associated with this Site if applicable to you.</p>
+
+            <h2>8. Acceptable Use</h2>
+            <p>You agree not to misuse the Site, including but not limited to: attempting to gain unauthorized access to any part of the Site or its underlying systems, interfering with the Site's normal operation, or using the Site for any unlawful purpose.</p>
+
+            <h2>9. Intellectual Property</h2>
+            <p>All content on this Site, including text, graphics, logos, and product images, is the property of Salted Quail LLC or its licensors and is protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works from this content without our prior written consent.</p>
+
+            <h2>10. Limitation of Liability</h2>
+            <p>To the fullest extent permitted by law, Salted Quail shall not be liable for any indirect, incidental, special, or consequential damages arising out of your use of the Site or products purchased through it. Our total liability for any claim shall not exceed the amount you paid for the applicable order.</p>
+
+            <h2>11. Governing Law</h2>
+            <p>These Terms are governed by the laws of the State of California, without regard to its conflict of law principles.</p>
+
+            <h2>12. Changes to These Terms</h2>
+            <p>We may update these Terms from time to time. Continued use of the Site after changes are posted constitutes your acceptance of the revised Terms.</p>
+
+            <h2>13. Contact Us</h2>
+            <p>If you have questions about these Terms, please visit our <a href="{{ url_for('contact') }}">Contact Us</a> page.</p>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="{{ url_for('terms') }}">Terms of Service</a>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+            <a href="{{ url_for('refund_policy') }}">Refund &amp; Cancellation Policy</a>
+            <a href="{{ url_for('contact') }}">Contact Us</a>
+        </div>
+        <p>&copy; <span id="year"></span> Salted Quail &middot; Made for people who like nice things.</p>
+    </footer>
+
+    <style>
+        .legal-page { max-width: 760px; margin: 0 auto; padding: 60px 24px 80px; }
+        .legal-page h1 { margin-bottom: 4px; }
+        .legal-updated { color: #888; font-size: 0.9rem; margin-bottom: 32px; }
+        .legal-page h2 { margin-top: 32px; margin-bottom: 8px; font-size: 1.15rem; }
+        .legal-page p { line-height: 1.65; margin-bottom: 12px; }
+        .legal-page a { color: inherit; text-decoration: underline; }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-bottom: 10px; font-size: 0.85rem; }
+        .footer-links a { color: inherit; opacity: 0.75; text-decoration: none; }
+        .footer-links a:hover { opacity: 1; text-decoration: underline; }
+    </style>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Salted Quail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a class="logo" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Salted Quail logo">
+                <span class="logo-text">Salted Quail</span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('home') }}#products-section">Products</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li>
+                    <a class="cart-link" href="{{ url_for('cart') }}">
+                        <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 8H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <circle cx="9" cy="20" r="1.4" fill="currentColor"></circle>
+                            <circle cx="17" cy="20" r="1.4" fill="currentColor"></circle>
+                        </svg>
+                        Cart
+                        {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+                    </a>
+                </li>
+                <li><a class="login-btn" href="{{ url_for('admin_login') }}">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="legal-page">
+        <div class="legal-inner">
+            <h1>Privacy Policy</h1>
+            <p class="legal-updated">Last updated: July 24, 2026</p>
+
+            <p>This Privacy Policy explains how Salted Quail LLC ("we," "us," or "our") collects, uses, and protects information when you visit or make a purchase from Salted Quail (the "Site").</p>
+
+            <h2>1. Information We Collect</h2>
+            <p>We collect the following types of information:</p>
+            <p><strong>Order information:</strong> When you complete a purchase, we receive your email address, order total, and the items purchased. This information is stored in our database (PostgreSQL) so we can fulfill your order, respond to support requests, and maintain records for accounting and legal purposes.</p>
+            <p><strong>Payment information:</strong> Payments are processed by Stripe, Inc. We do not store your full card number, expiration date, or CVV on our servers. Stripe's handling of your payment data is governed by their own privacy policy, available at stripe.com/privacy.</p>
+            <p><strong>Cart and session data:</strong> While you browse, the items in your shopping cart are temporarily stored in a session cookie in your browser. This data is not linked to a personal profile and is cleared automatically after checkout or when your session expires.</p>
+            <p><strong>Technical information:</strong> Like most websites, our server may log basic technical information such as IP address, browser type, and pages visited, for security and troubleshooting purposes.</p>
+
+            <h2>2. How We Use Your Information</h2>
+            <p>We use the information we collect to:</p>
+            <p>Process and fulfill your orders; communicate with you about your order status; respond to customer support inquiries; detect and prevent fraud; and comply with legal and tax obligations.</p>
+            <p>We do not sell your personal information to third parties.</p>
+
+            <h2>3. How We Share Information</h2>
+            <p>We share information only with the service providers necessary to run the Site, including:</p>
+            <p><strong>Stripe</strong> &mdash; for payment processing.</p>
+            <p><strong>xxx (hosting provider, e.g. Render)</strong> &mdash; for hosting our website and database.</p>
+            <p>We may also disclose information if required to do so by law, or to protect the rights, property, or safety of Salted Quail, our customers, or others.</p>
+
+            <h2>4. Data Retention</h2>
+            <p>We retain order records in our database for as long as necessary to fulfill orders, comply with tax and accounting obligations, and resolve disputes. You may request deletion of your personal information by contacting us, subject to any legal retention requirements.</p>
+
+            <h2>5. Cookies</h2>
+            <p>We use a session cookie to keep track of the items in your shopping cart. This cookie is essential to the Site's shopping cart functionality. We do not currently use third-party advertising or tracking cookies.</p>
+
+            <h2>6. Your Rights</h2>
+            <p>Depending on your location, you may have the right to request access to, correction of, or deletion of your personal information. To make such a request, please contact us using the details on our <a href="{{ url_for('contact') }}">Contact Us</a> page.</p>
+
+            <h2>7. Children's Privacy</h2>
+            <p>This Site is not directed at children under 13, and we do not knowingly collect personal information from children under 13.</p>
+
+            <h2>8. Changes to This Policy</h2>
+            <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated "Last updated" date.</p>
+
+            <h2>9. Contact Us</h2>
+            <p>If you have questions about this Privacy Policy or how your information is handled, please visit our <a href="{{ url_for('contact') }}">Contact Us</a> page.</p>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="{{ url_for('terms') }}">Terms of Service</a>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+            <a href="{{ url_for('refund_policy') }}">Refund &amp; Cancellation Policy</a>
+            <a href="{{ url_for('contact') }}">Contact Us</a>
+        </div>
+        <p>&copy; <span id="year"></span> Salted Quail &middot; Made for people who like nice things.</p>
+    </footer>
+
+    <style>
+        .legal-page { max-width: 760px; margin: 0 auto; padding: 60px 24px 80px; }
+        .legal-page h1 { margin-bottom: 4px; }
+        .legal-updated { color: #888; font-size: 0.9rem; margin-bottom: 32px; }
+        .legal-page h2 { margin-top: 32px; margin-bottom: 8px; font-size: 1.15rem; }
+        .legal-page p { line-height: 1.65; margin-bottom: 12px; }
+        .legal-page a { color: inherit; text-decoration: underline; }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-bottom: 10px; font-size: 0.85rem; }
+        .footer-links a { color: inherit; opacity: 0.75; text-decoration: none; }
+        .footer-links a:hover { opacity: 1; text-decoration: underline; }
+    </style>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>

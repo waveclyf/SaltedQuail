@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - Salted Quail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a class="logo" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Salted Quail logo">
+                <span class="logo-text">Salted Quail</span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('home') }}#products-section">Products</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li>
+                    <a class="cart-link" href="{{ url_for('cart') }}">
+                        <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 8H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <circle cx="9" cy="20" r="1.4" fill="currentColor"></circle>
+                            <circle cx="17" cy="20" r="1.4" fill="currentColor"></circle>
+                        </svg>
+                        Cart
+                        {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+                    </a>
+                </li>
+                <li><a class="login-btn" href="{{ url_for('admin_login') }}">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="cart-section">
+        <div class="cart-head">
+            <h1>Your cart</h1>
+            <p>{{ items|length }} item{{ 's' if items|length != 1 else '' }} in your bag.</p>
+        </div>
+
+        {% if items %}
+        <div class="cart-layout">
+
+            <div class="cart-items">
+                {% for item in items %}
+                <div class="cart-row">
+                    <div class="cart-row-image">
+                        <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="{{ item.name }}">
+                    </div>
+
+                    <div class="cart-row-info">
+                        <h3>{{ item.name }}</h3>
+                        <p class="cart-row-price">{{ item.price_cents|usd }} each</p>
+                    </div>
+
+                    <form class="cart-row-qty" action="{{ url_for('cart_update', product_id=item.id) }}" method="POST">
+                        <button type="submit" class="qty-btn" name="quantity" value="{{ item.quantity - 1 }}" aria-label="Decrease quantity">&minus;</button>
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="20" inputmode="numeric" aria-label="Quantity for {{ item.name }}">
+                        <button type="submit" class="qty-btn" name="quantity" value="{{ item.quantity + 1 }}" aria-label="Increase quantity">&plus;</button>
+                    </form>
+
+                    <p class="cart-row-total">{{ item.line_total_cents|usd }}</p>
+
+                    <form action="{{ url_for('cart_remove', product_id=item.id) }}" method="POST">
+                        <button type="submit" class="remove-btn" aria-label="Remove {{ item.name }} from cart">Remove</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+
+            <aside class="cart-summary">
+                <h2>Order summary</h2>
+                <div class="summary-line">
+                    <span>Subtotal</span>
+                    <span>{{ total_cents|usd }}</span>
+                </div>
+                <div class="summary-line summary-total">
+                    <span>Total</span>
+                    <span>{{ total_cents|usd }}</span>
+                </div>
+                <p class="price-note">Prices shown include shipping, handling, and tax — no surprises at checkout.</p>
+                <a class="cta checkout-btn" href="{{ url_for('checkout') }}">Proceed to checkout <span aria-hidden="true">&rarr;</span></a>
+                <form action="{{ url_for('cart_clear') }}" method="POST">
+                    <button type="submit" class="clear-btn">Clear cart</button>
+                </form>
+            </aside>
+
+        </div>
+        {% else %}
+        <div class="cart-empty">
+            <p>Your cart is empty.</p>
+            <a class="cta" href="{{ url_for('home') }}#products-section">Browse products <span aria-hidden="true">&rarr;</span></a>
+        </div>
+        {% endif %}
+    </section>
+
+    <footer class="site-footer">
+        <p>&copy; <span id="year"></span> Salted Quail &middot; Made for people who like nice things.</p>
+    </footer>
+
+    <style>
+        .price-note {
+            font-size: 0.82rem;
+            color: #777;
+            margin: 10px 0 16px;
+            line-height: 1.4;
+        }
+    </style>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>

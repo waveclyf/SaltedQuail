@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} - Salted Quail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a class="logo" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Salted Quail logo">
+                <span class="logo-text">Salted Quail</span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('home') }}#products-section">Products</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li>
+                    <a class="cart-link" href="{{ url_for('cart') }}">
+                        <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 8H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <circle cx="9" cy="20" r="1.4" fill="currentColor"></circle>
+                            <circle cx="17" cy="20" r="1.4" fill="currentColor"></circle>
+                        </svg>
+                        Cart
+                        {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+                    </a>
+                </li>
+                <li><a class="login-btn" href="{{ url_for('admin_login') }}">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="pd-section">
+        <div class="pd-inner">
+
+            <div class="pd-image-col">
+                <div class="pd-image">
+                    <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}" class="zoomable-img" id="mainProductImage">
+                </div>
+
+                {% if product.extra_images %}
+                <div class="pd-thumbs">
+                    <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}" class="pd-thumb is-active">
+                    {% for extra in product.extra_images %}
+                    <img src="{{ url_for('static', filename='images/' + extra) }}" alt="{{ product.name }}" class="pd-thumb">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Lightbox overlay: shown full-size when the product image is clicked -->
+            <div class="lightbox-overlay" id="lightboxOverlay">
+                <button class="lightbox-close" id="lightboxClose" aria-label="Close full image">&times;</button>
+                <img class="lightbox-img" id="lightboxImg" src="" alt="">
+            </div>
+
+            <div class="pd-info">
+                <h1>{{ product.name }}</h1>
+                <p class="pd-price">{{ product.price_cents|usd }}</p>
+                <p class="pd-description">{{ product.description }}</p>
+
+                <form class="pd-form" action="{{ url_for('cart_add', product_id=product.id) }}" method="POST">
+                    <div class="qty-field">
+                        <label for="quantity">Quantity</label>
+                        <div class="qty-stepper">
+                            <button type="button" class="qty-btn" data-step="-1" aria-label="Decrease quantity">&minus;</button>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" max="20" inputmode="numeric">
+                            <button type="button" class="qty-btn" data-step="1" aria-label="Increase quantity">&plus;</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="cta add-to-cart-btn">
+                        Add to cart <span aria-hidden="true">&rarr;</span>
+                    </button>
+                </form>
+
+                <a class="back-link" href="{{ url_for('home') }}#products-section">&larr; Back to products</a>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="{{ url_for('terms') }}">Terms of Service</a>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+            <a href="{{ url_for('refund_policy') }}">Refund &amp; Cancellation Policy</a>
+            <a href="{{ url_for('contact') }}">Contact Us</a>
+        </div>
+        <p>&copy; <span id="year"></span> Salted Quail &middot; Made for people who like nice things.</p>
+    </footer>
+
+    <style>
+        .zoomable-img { cursor: zoom-in; }
+
+        .footer-links { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-bottom: 10px; font-size: 0.85rem; }
+        .footer-links a { color: inherit; opacity: 0.75; text-decoration: none; }
+        .footer-links a:hover { opacity: 1; text-decoration: underline; }
+
+        .pd-image-col {
+            display: block !important;
+            overflow: visible !important;
+        }
+
+        .pd-thumbs {
+            display: flex !important;
+            gap: 10px;
+            margin-top: 12px;
+            visibility: visible !important;
+            opacity: 1 !important;
+            height: auto !important;
+        }
+        .pd-thumb {
+            display: block !important;
+            width: 64px;
+            height: 64px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+            opacity: 0.6;
+            border: 2px solid transparent;
+            transition: opacity 0.15s ease, border-color 0.15s ease;
+        }
+        .pd-thumb:hover {
+            opacity: 1;
+        }
+        .pd-thumb.is-active {
+            opacity: 1;
+            border-color: #222;
+        }
+
+        .lightbox-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .lightbox-overlay.is-open {
+            display: flex;
+        }
+        .lightbox-img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 6px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 2.5rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        const qtyInput = document.getElementById('quantity');
+        document.querySelectorAll('.qty-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const step = parseInt(btn.dataset.step, 10);
+                const min = parseInt(qtyInput.min, 10);
+                const max = parseInt(qtyInput.max, 10);
+                let next = (parseInt(qtyInput.value, 10) || 1) + step;
+                next = Math.max(min, Math.min(max, next));
+                qtyInput.value = next;
+            });
+        });
+
+        // Thumbnail strip: click a thumbnail to swap the main product image
+        const mainProductImage = document.getElementById('mainProductImage');
+        document.querySelectorAll('.pd-thumb').forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                mainProductImage.src = thumb.src;
+                document.querySelectorAll('.pd-thumb').forEach(t => t.classList.remove('is-active'));
+                thumb.classList.add('is-active');
+            });
+        });
+
+        // Lightbox: click the product image to view it full size
+        const lightboxOverlay = document.getElementById('lightboxOverlay');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxClose = document.getElementById('lightboxClose');
+
+        function openLightbox(src, alt) {
+            lightboxImg.src = src;
+            lightboxImg.alt = alt;
+            lightboxOverlay.classList.add('is-open');
+        }
+        function closeLightbox() {
+            lightboxOverlay.classList.remove('is-open');
+            lightboxImg.src = '';
+        }
+
+        document.querySelectorAll('.zoomable-img').forEach(img => {
+            img.addEventListener('click', () => openLightbox(img.src, img.alt));
+        });
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightboxOverlay.addEventListener('click', (e) => {
+            if (e.target === lightboxOverlay) closeLightbox();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+    </script>
+
+</body>
+</html>

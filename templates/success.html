@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Success!</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <section style="text-align: center; margin-top: 100px;">
+        <h1>🎉 Order Placed Successfully!</h1>
+        <p>Thank you for shopping with us. Your cups and t-shirts are being packed.</p>
+        <a href="{{ url_for('home') }}">Back to Home</a>
+    </section>
+</body>
+</html>

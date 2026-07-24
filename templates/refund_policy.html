@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refund &amp; Cancellation Policy - Salted Quail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a class="logo" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Salted Quail logo">
+                <span class="logo-text">Salted Quail</span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('home') }}#products-section">Products</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li>
+                    <a class="cart-link" href="{{ url_for('cart') }}">
+                        <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 8H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <circle cx="9" cy="20" r="1.4" fill="currentColor"></circle>
+                            <circle cx="17" cy="20" r="1.4" fill="currentColor"></circle>
+                        </svg>
+                        Cart
+                        {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+                    </a>
+                </li>
+                <li><a class="login-btn" href="{{ url_for('admin_login') }}">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="legal-page">
+        <div class="legal-inner">
+            <h1>Refund &amp; Cancellation Policy</h1>
+            <p class="legal-updated">Last updated: xxx</p>
+
+            <p>We want you to be happy with your order from xxx. This policy explains how returns, refunds, and cancellations work.</p>
+
+            <h2>1. Order Cancellations</h2>
+            <p>You may cancel an order by contacting us at the details on our <a href="{{ url_for('contact') }}">Contact Us</a> page within xxx hours of placing it, provided the order has not yet shipped. Once an order has shipped, it can no longer be cancelled and must instead follow the return process below.</p>
+
+            <h2>2. Returns</h2>
+            <p>We accept returns within xxx days of the delivery date. To be eligible for a return, items must be:</p>
+            <p>Unused and in the same condition that you received them, in their original packaging, with proof of purchase (order number or confirmation email).</p>
+            <p>To start a return, contact us at the details on our <a href="{{ url_for('contact') }}">Contact Us</a> page with your order number and reason for return.</p>
+
+            <h2>3. Refunds</h2>
+            <p>Once we receive and inspect your returned item, we will notify you of the approval or rejection of your refund. If approved, your refund will be processed to your original payment method through Stripe within xxx business days. Please note that your bank or card issuer may take additional time to post the refund to your account.</p>
+
+            <h2>4. Non-Returnable Items</h2>
+            <p>xxx (list any items that cannot be returned, e.g. final sale items, personalized/custom items, or items marked as non-returnable at checkout).</p>
+
+            <h2>5. Damaged or Defective Items</h2>
+            <p>If your order arrives damaged or defective, please contact us within xxx days of delivery with photos of the item and packaging. We will offer a replacement, exchange, or full refund at no additional cost to you.</p>
+
+            <h2>6. Shipping Costs</h2>
+            <p>xxx (state whether original shipping fees are refundable and who covers return shipping costs).</p>
+
+            <h2>7. Late or Missing Refunds</h2>
+            <p>If you haven't received a refund after the timeframe above, first check your bank account again, then contact your card issuer, as it may take some time before your refund is officially posted. If you've done this and still have not received your refund, please contact us using the details on our <a href="{{ url_for('contact') }}">Contact Us</a> page.</p>
+
+            <h2>8. Contact Us</h2>
+            <p>Questions about your return or refund? Visit our <a href="{{ url_for('contact') }}">Contact Us</a> page.</p>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="{{ url_for('terms') }}">Terms of Service</a>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+            <a href="{{ url_for('refund_policy') }}">Refund &amp; Cancellation Policy</a>
+            <a href="{{ url_for('contact') }}">Contact Us</a>
+        </div>
+        <p>&copy; <span id="year"></span> Salted Quail &middot; Made for people who like nice things.</p>
+    </footer>
+
+    <style>
+        .legal-page { max-width: 760px; margin: 0 auto; padding: 60px 24px 80px; }
+        .legal-page h1 { margin-bottom: 4px; }
+        .legal-updated { color: #888; font-size: 0.9rem; margin-bottom: 32px; }
+        .legal-page h2 { margin-top: 32px; margin-bottom: 8px; font-size: 1.15rem; }
+        .legal-page p { line-height: 1.65; margin-bottom: 12px; }
+        .legal-page a { color: inherit; text-decoration: underline; }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-bottom: 10px; font-size: 0.85rem; }
+        .footer-links a { color: inherit; opacity: 0.75; text-decoration: none; }
+        .footer-links a:hover { opacity: 1; text-decoration: underline; }
+    </style>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>

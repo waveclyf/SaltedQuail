@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Salted Quail</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="login-container" style="max-width: 400px; margin: 100px auto; padding: 20px;">
+        <h2>Admin Portal</h2>
+
+        {% if error %}
+        <p style="color:#b00020; margin-bottom:15px;">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('admin_login') }}" method="POST">
+            <input type="text" name="username" placeholder="Username" style="width: 100%; margin-bottom: 10px;" required>
+            <input type="password" name="password" placeholder="Password" style="width: 100%; margin-bottom: 20px;" required>
+            <button type="submit" style="width: 100%;">Login</button>
+        </form>
+    </div>
+</body>
+</html>

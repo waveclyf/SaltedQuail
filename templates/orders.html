@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="margin: 0; font-family: sans-serif;">
+    <div style="display: flex; min-height: 100vh;">
+        <aside style="width: 240px; background: #111; color: #fff; padding: 20px;">
+            <h3 style="margin-top: 0;">Store Admin</h3>
+            <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 15px;">
+                <li><a href="{{ url_for('admin_dashboard') }}" style="color: #aaa; text-decoration: none;">Metrics Overview</a></li>
+                <li><a href="{{ url_for('orders') }}" style="color: #fff; text-decoration: none;">Incoming Orders</a></li>
+                <li><a href="{{ url_for('home') }}" style="color: #aaa; text-decoration: none;">View Storefront</a></li>
+                <li><a href="{{ url_for('admin_logout') }}" style="color: #aaa; text-decoration: none;">Log out</a></li>
+            </ul>
+        </aside>
+
+        <main style="flex-grow: 1; padding: 40px; background: #fafafa;">
+            <h2>Customer Orders Log</h2>
+            <div style="background: white; border: 1px solid #eee; border-radius: 6px; margin-top: 20px; padding: 20px;">
+                {% if orders %}
+                <table style="width:100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="text-align:left; border-bottom: 2px solid #eee;">
+                            <th style="padding:8px; width:24px;"></th>
+                            <th style="padding:8px;">Order #</th>
+                            <th style="padding:8px;">Date</th>
+                            <th style="padding:8px;">Customer</th>
+                            <th style="padding:8px;">Items</th>
+                            <th style="padding:8px;">Total</th>
+                            <th style="padding:8px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr style="border-bottom: 1px solid #f0f0f0; cursor:pointer;" class="order-row" data-target="order-details-{{ order.id }}">
+                            <td style="padding:8px; color:#999;" class="expand-arrow">&#9656;</td>
+                            <td style="padding:8px;">#{{ order.id }}</td>
+                            <td style="padding:8px;">{{ order.created_at.strftime('%b %d, %Y %I:%M %p') }}</td>
+                            <td style="padding:8px;">{{ order.customer_name or order.customer_email or '—' }}</td>
+                            <td style="padding:8px;">
+                                {% for item in order.items %}
+                                    {{ item.quantity }}&times; {{ item.product_name }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td style="padding:8px;">{{ order.total_cents|usd }}</td>
+                            <td style="padding:8px;">{{ order.status|capitalize }}</td>
+                        </tr>
+                        <tr id="order-details-{{ order.id }}" class="order-details-row" style="display:none; background:#fafafa; border-bottom: 1px solid #f0f0f0;">
+                            <td></td>
+                            <td colspan="6" style="padding:12px 8px 18px;">
+                                <div style="display:flex; gap:40px; flex-wrap:wrap;">
+                                    <div>
+                                        <strong style="display:block; margin-bottom:4px; color:#666; font-size:0.85rem;">CONTACT</strong>
+                                        <div>{{ order.customer_name or '—' }}</div>
+                                        <div>{{ order.customer_email or '—' }}</div>
+                                        <div>{{ order.customer_phone or '—' }}</div>
+                                    </div>
+                                    <div>
+                                        <strong style="display:block; margin-bottom:4px; color:#666; font-size:0.85rem;">SHIPPING ADDRESS</strong>
+                                        {% if order.shipping_line1 %}
+                                        <div>{{ order.shipping_line1 }}</div>
+                                        {% if order.shipping_line2 %}<div>{{ order.shipping_line2 }}</div>{% endif %}
+                                        <div>{{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_zip }}</div>
+                                        <div>{{ order.shipping_country }}</div>
+                                        {% else %}
+                                        <div>—</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <script>
+                    document.querySelectorAll('.order-row').forEach(row => {
+                        row.addEventListener('click', () => {
+                            const details = document.getElementById(row.dataset.target);
+                            const arrow = row.querySelector('.expand-arrow');
+                            const isOpen = details.style.display !== 'none';
+                            details.style.display = isOpen ? 'none' : 'table-row';
+                            arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
+                        });
+                    });
+                </script>
+                {% else %}
+                <p style="color: #666;">No orders yet.</p>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

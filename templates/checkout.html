@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Salted Quail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a class="logo" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Salted Quail logo">
+                <span class="logo-text">Salted Quail</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('home') }}#products-section">Products</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li>
+                    <a class="cart-link" href="{{ url_for('cart') }}">
+                        <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 8H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <circle cx="9" cy="20" r="1.4" fill="currentColor"></circle>
+                            <circle cx="17" cy="20" r="1.4" fill="currentColor"></circle>
+                        </svg>
+                        Cart
+                        {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+                    </a>
+                </li>
+                <li><a class="login-btn" href="{{ url_for('admin_login') }}">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="cart-section">
+        <div class="cart-head">
+            <h1>Checkout</h1>
+            <p>Review your order, then pay securely with Stripe.</p>
+        </div>
+
+        <form action="{{ url_for('create_checkout_session') }}" method="POST" id="checkoutForm">
+        <div class="cart-layout">
+            <div class="cart-items">
+                {% for item in items %}
+                <div class="cart-row">
+                    <div class="cart-row-image">
+                        <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="{{ item.name }}">
+                    </div>
+                    <div class="cart-row-info">
+                        <h3>{{ item.name }}</h3>
+                        <p class="cart-row-price">{{ item.price_cents|usd }} &times; {{ item.quantity }}</p>
+                    </div>
+                    <p class="cart-row-total">{{ item.line_total_cents|usd }}</p>
+                </div>
+                {% endfor %}
+
+                <div class="shipping-form">
+                    <h2>Contact details</h2>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="full_name">Full name</label>
+                            <input type="text" id="full_name" name="full_name" required autocomplete="name">
+                        </div>
+                        <div class="form-field">
+                            <label for="email">Email address</label>
+                            <input type="email" id="email" name="email" required autocomplete="email">
+                        </div>
+                        <div class="form-field">
+                            <label for="phone">Phone number</label>
+                            <input type="tel" id="phone" name="phone" required autocomplete="tel" placeholder="+1 555 123 4567">
+                        </div>
+                    </div>
+
+                    <h2>Shipping address</h2>
+                    <div class="form-grid">
+                        <div class="form-field form-field-wide">
+                            <label for="address_line1">Address line 1</label>
+                            <input type="text" id="address_line1" name="address_line1" required autocomplete="address-line1">
+                        </div>
+                        <div class="form-field form-field-wide">
+                            <label for="address_line2">Address line 2 <span class="optional-tag">(optional)</span></label>
+                            <input type="text" id="address_line2" name="address_line2" autocomplete="address-line2">
+                        </div>
+                        <div class="form-field">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" required autocomplete="address-level2">
+                        </div>
+                        <div class="form-field">
+                            <label for="state">State / Province</label>
+                            <input type="text" id="state" name="state" required autocomplete="address-level1">
+                        </div>
+                        <div class="form-field">
+                            <label for="zip_code">ZIP / Postal code</label>
+                            <input type="text" id="zip_code" name="zip_code" required autocomplete="postal-code">
+                        </div>
+                        <div class="form-field">
+                            <label for="country">Country</label>
+                            <input type="text" id="country" name="country" required autocomplete="country-name">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="cart-summary">
+                <h2>Order summary</h2>
+                <div class="summary-line">
+                    <span>Subtotal</span>
+                    <span>{{ total_cents|usd }}</span>
+                </div>
+                <div class="summary-line summary-total">
+                    <span>Total</span>
+                    <span>{{ total_cents|usd }}</span>
+                </div>
+                <p style="margin-top:8px; font-size:0.82rem; color:#777; line-height:1.4;">
+                    Prices shown include shipping, handling, and tax — no surprises at checkout.
+                </p>
+
+                <button type="submit" class="cta checkout-btn">
+                    Pay with Stripe <span aria-hidden="true">&rarr;</span>
+                </button>
+                <p style="margin-top:12px; font-size:0.85rem; color:#777;">
+                    You'll be redirected to Stripe's secure checkout page to enter card details.
+                </p>
+            </aside>
+        </div>
+        </form>
+    </section>
+
+    <style>
+        #checkoutForm { margin: 0; }
+        .shipping-form {
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px solid #eee;
+        }
+        .shipping-form h2 {
+            font-size: 1.05rem;
+            margin: 0 0 14px;
+        }
+        .shipping-form h2:not(:first-child) {
+            margin-top: 24px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 16px;
+        }
+        .form-field-wide {
+            grid-column: 1 / -1;
+        }
+        .form-field label {
+            display: block;
+            font-size: 0.82rem;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        .optional-tag {
+            color: #999;
+            font-weight: normal;
+        }
+        .form-field input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+        .form-field input:focus {
+            outline: none;
+            border-color: #222;
+        }
+        @media (max-width: 640px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+
+    <footer class="site-footer">
+        <p>&copy; <span id="year"></span> Salted Quail &middot; Made for people who like nice things.</p>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>
