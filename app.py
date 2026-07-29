@@ -98,10 +98,7 @@ PRODUCTS = {
     3: {
         "id": 3, "name": "Truth, Prayers and Confirmation", "price_cents": 2000, "image": "book.jpg",
         "extra_images": ["book1.jpg"],
-        "description": "A5 sized ruled devotional journal with premium fountain-pen friendly "
-                        "paper. Set aside space each day for prayer, reflection, and recording "
-                        "the truths that ground your faith — a quiet companion for your walk "
-                        "with God.",
+       
     },
     4: {
         "id": 4, "name": "Cap", "price_cents": 2500, "image": "cap.jpg",
