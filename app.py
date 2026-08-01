@@ -89,6 +89,7 @@ PRODUCTS = {
         "id": 1, "name": "T-Shirt", "price_cents": 2000, "image": "t-shirt.jpg",
         "description": "Premium quality 100% cotton t-shirt. Breathable fabric, "
                         "perfect for casual wear, and tailored for a modern fit.",
+        "options": {"label": "Size", "choices": ["1XL", "2XL", "3XL", "4XL", "5XL"]},
     },
     2: {
         "id": 2, "name": "Coffee Mug", "price_cents": 1000, "image": "mug.jpg",
@@ -98,12 +99,23 @@ PRODUCTS = {
     3: {
         "id": 3, "name": "Truth, Prayers and Confirmation", "price_cents": 2000, "image": "book.jpg",
         "extra_images": ["book1.jpg"],
-       
+        "description": "Being conscious, deliberate, and intentional at building the SaltedQuail "
+                        "business for the glory of God. Know that Saltedquail LLC is more than a "
+                        "publishing brand — it's a faith base business, and a Christ-centered mission. "
+                        "As a believer, and a published author, who sales creative writings, and "
+                        "timeless Biblical truths to encourage intentional living in faith. The focus "
+                        "is to build a community where we can continue to learn, share, and grow in "
+                        "Christ. Dive into short devotionals, reflections, and articles that bring "
+                        "Scripture into everyday life. Whether you're seeking encouragement, wisdom, "
+                        "or a deeper understanding of God from the Word, our Insights are here to "
+                        "guide you.",
+        "purchasable": False,
     },
     4: {
         "id": 4, "name": "Cap", "price_cents": 2500, "image": "cap.jpg",
         "description": "Adjustable cotton-blend cap with a curved brim and breathable "
                         "eyelets. A comfortable, everyday fit for sunny days out.",
+        "options": {"label": "Colour", "choices": ["Red", "Blue", "Black", "White", "Green"]},
     },
 }
 
@@ -182,15 +194,30 @@ def get_cart():
 
 
 def get_cart_items():
+    """Cart entries are keyed as "<product_id>|<variant>" so that, e.g., a 2XL
+    and a 3XL t-shirt sit in the cart as two separate lines. `variant` is ""
+    for products with no options (unchanged behaviour for Mug/Book)."""
     cart = get_cart()
     items = []
-    for pid_str, qty in cart.items():
-        product = PRODUCTS.get(int(pid_str))
+    for key, qty in cart.items():
+        pid_str, _, variant = key.partition("|")
+        product = PRODUCTS.get(int(pid_str)) if pid_str.isdigit() else None
         if not product:
             continue
+        options = product.get("options")
+        # Guard against a stale cart entry referencing an option that no
+        # longer exists (e.g. the catalog was edited after items were added).
+        if variant and (not options or variant not in options["choices"]):
+            continue
+        variant_label = options["label"] if (options and variant) else None
+        line_item_name = f"{product['name']} ({variant_label}: {variant})" if variant else product["name"]
         items.append({
             "id": product["id"],
+            "key": key,
             "name": product["name"],
+            "variant": variant,
+            "variant_label": variant_label,
+            "line_item_name": line_item_name,
             "image": product["image"],
             "price_cents": product["price_cents"],
             "quantity": qty,
@@ -293,38 +320,53 @@ def cart():
 
 @app.route("/cart/add/<int:product_id>", methods=["POST"])
 def cart_add(product_id):
-    if product_id not in PRODUCTS:
+    product = PRODUCTS.get(product_id)
+    if not product:
         abort(404)
+    if not product.get("purchasable", True):
+        # Not yet on sale (e.g. book still being finished) — refuse even if
+        # someone bypasses the disabled UI with a direct POST.
+        return redirect(url_for("product_details", product_id=product_id))
+
+    variant = ""
+    options = product.get("options")
+    if options:
+        variant = (request.form.get("variant") or "").strip()
+        # Server-side backstop in case the <select required> is bypassed
+        # (e.g. a direct POST) — refuse to add a variant product without a
+        # valid, in-catalog choice rather than silently guessing one.
+        if variant not in options["choices"]:
+            return redirect(url_for("product_details", product_id=product_id))
+
     cart = get_cart()
-    pid_str = str(product_id)
+    key = f"{product_id}|{variant}"
     qty = parse_quantity(request.form.get("quantity"), default=1)
-    new_qty = cart.get(pid_str, 0) + qty
-    cart[pid_str] = min(new_qty, MAX_QTY_PER_ITEM)
+    new_qty = cart.get(key, 0) + qty
+    cart[key] = min(new_qty, MAX_QTY_PER_ITEM)
     session.modified = True
     return redirect(url_for("cart"))
 
 
-@app.route("/cart/update/<int:product_id>", methods=["POST"])
-def cart_update(product_id):
+@app.route("/cart/update/<path:key>", methods=["POST"])
+def cart_update(key):
     cart = get_cart()
-    pid_str = str(product_id)
     raw_qty = request.form.get("quantity", "")
     try:
         requested_qty = int(raw_qty)
     except (TypeError, ValueError):
         requested_qty = 1
     if requested_qty <= 0:
-        cart.pop(pid_str, None)
+        cart.pop(key, None)
     else:
-        cart[pid_str] = min(requested_qty, MAX_QTY_PER_ITEM)
+        cart[key] = min(requested_qty, MAX_QTY_PER_ITEM)
     session.modified = True
     return redirect(url_for("cart"))
 
 
-@app.route("/cart/remove/<int:product_id>", methods=["POST"])
-def cart_remove(product_id):
+@app.route("/cart/remove/<path:key>", methods=["POST"])
+def cart_remove(key):
     cart = get_cart()
-    cart.pop(str(product_id), None)
+    cart.pop(key, None)
     session.modified = True
     return redirect(url_for("cart"))
 
@@ -382,7 +424,7 @@ def create_checkout_session():
     line_items = [{
         "price_data": {
             "currency": "usd",
-            "product_data": {"name": item["name"]},
+            "product_data": {"name": item["line_item_name"]},
             "unit_amount": item["price_cents"],
         },
         "quantity": item["quantity"],

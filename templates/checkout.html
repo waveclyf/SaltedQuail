@@ -54,6 +54,7 @@
                     </div>
                     <div class="cart-row-info">
                         <h3>{{ item.name }}</h3>
+                        {% if item.variant %}<p class="cart-row-variant">{{ item.variant_label }}: {{ item.variant }}</p>{% endif %}
                         <p class="cart-row-price">{{ item.price_cents|usd }} &times; {{ item.quantity }}</p>
                     </div>
                     <p class="cart-row-total">{{ item.line_total_cents|usd }}</p>
@@ -142,6 +143,11 @@
 
     <style>
         #checkoutForm { margin: 0; }
+        .cart-row-variant {
+            font-size: 0.82rem;
+            color: #777;
+            margin: 2px 0 0;
+        }
         .shipping-form {
             margin-top: 28px;
             padding-top: 24px;

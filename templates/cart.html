@@ -56,10 +56,11 @@
 
                     <div class="cart-row-info">
                         <h3>{{ item.name }}</h3>
+                        {% if item.variant %}<p class="cart-row-variant">{{ item.variant_label }}: {{ item.variant }}</p>{% endif %}
                         <p class="cart-row-price">{{ item.price_cents|usd }} each</p>
                     </div>
 
-                    <form class="cart-row-qty" action="{{ url_for('cart_update', product_id=item.id) }}" method="POST">
+                    <form class="cart-row-qty" action="{{ url_for('cart_update', key=item.key) }}" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="qty-btn" name="quantity" value="{{ item.quantity - 1 }}" aria-label="Decrease quantity">&minus;</button>
                         <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="20" inputmode="numeric" aria-label="Quantity for {{ item.name }}">
@@ -68,7 +69,7 @@
 
                     <p class="cart-row-total">{{ item.line_total_cents|usd }}</p>
 
-                    <form action="{{ url_for('cart_remove', product_id=item.id) }}" method="POST">
+                    <form action="{{ url_for('cart_remove', key=item.key) }}" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="remove-btn" aria-label="Remove {{ item.name }} from cart">Remove</button>
                     </form>
@@ -116,6 +117,11 @@
     </footer>
 
     <style>
+        .cart-row-variant {
+            font-size: 0.82rem;
+            color: #777;
+            margin: 2px 0 0;
+        }
         .price-note {
             font-size: 0.82rem;
             color: #777;
