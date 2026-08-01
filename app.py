@@ -87,6 +87,7 @@ DOMAIN = os.environ.get("DOMAIN", "http://localhost:5000")  # e.g. https://salte
 PRODUCTS = {
     1: {
         "id": 1, "name": "T-Shirt", "price_cents": 2000, "image": "t-shirt.jpg",
+        "extra_images": ["t-shirt1.jpg"],
         "description": "Premium quality 100% cotton t-shirt. Breathable fabric, "
                         "perfect for casual wear, and tailored for a modern fit.",
         "options": {"label": "Size", "choices": ["1XL", "2XL", "3XL", "4XL", "5XL"]},
