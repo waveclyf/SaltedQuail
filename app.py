@@ -115,7 +115,7 @@ PRODUCTS = {
     4: {
         "id": 4, "name": "Cap", "price_cents": 2500, "image": "cap.jpg",
         "description": "Adjustable logo printed baseball cap with a curved brim and breathable "
-                        "eyelets. A comfortable, everyday fit for sunny days out. Available in 5 varieties of shades",
+                     "A comfortable, everyday fit for sunny days out. Available in 5 varieties of shades",
         "options": {"label": "Colour", "choices": ["Red", "Blue", "Black", "White", "Green"]},
     },
 }
